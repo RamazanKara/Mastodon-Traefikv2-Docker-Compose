@@ -3,7 +3,7 @@ Mastodon Instance based on Docker Compose. Requires a Traefik Load Balancer
 
 ## Demo
 
-Visit https://www.r-kara.de for a demo of my own Mastodon Instance
+Visit https://r-kara.de for a demo of my own Mastodon Instance
 
 ## Install
 
