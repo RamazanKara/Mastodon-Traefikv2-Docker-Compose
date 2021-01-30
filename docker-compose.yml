@@ -68,7 +68,7 @@ services:
       - mastodon-internal_network
 
   streaming:
-    image: tootsuite/mastodon:v3.2.1
+    image: tootsuite/mastodon:v3.3.0
     restart: always
     env_file: .env.production
     command: node ./streaming
@@ -100,7 +100,7 @@ services:
       - mastodon-internal_network
 
   sidekiq:
-    image: tootsuite/mastodon:v3.2.1
+    image: tootsuite/mastodon:v3.3.0
     restart: always
     env_file: .env.production
     command: bundle exec sidekiq
