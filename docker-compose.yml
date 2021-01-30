@@ -1,0 +1,102 @@
+version: "3.5"
+
+# Variables to fill in:
+# Line 23: <LETSENCRYPT_MAIL_ADDRESS> - your mail address for contact with Let's Encrypt
+# Line 36: <TRAEFIK_DASHBOARD_ADMIN_PASSWORD> - MD5 hash of your password (use http://www.htaccesstools.com/htpasswd-generator/)
+# Line 54: <POSTGRES_PASSWORD> - the password for the postgres db. Use the same during mastodon:setup!
+# Lines 31, 86, 111: <DOMAIN> - e.g. social.yourdomain.com (Must have an A record pointing to your box' IP) (AAAA for IPv6 ;)
+
+services:
+
+  db:
+    restart: always
+    image: postgres:9.6-alpine
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+    environment:
+      - POSTGRES_PASSWORD=<POSTGRES_PASSWORD>
+    volumes:
+      - /hdd/mastodon/postgres:/var/lib/postgresql/data
+    networks:
+      - mastodon-internal_network
+
+  redis:
+    restart: always
+    image: redis:5.0-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+    volumes:
+      - /hdd/mastodon/redis:/data
+    networks:
+      - mastodon-internal_network
+
+  web:
+    image: tootsuite/mastodon:v3.3.0
+    restart: always
+    env_file: .env.production
+    command: bash -c "rm -f /mastodon/tmp/pids/server.pid; bundle exec rails s -p 3000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider --proxy=off localhost:3000/health || exit 1"]
+    expose:
+      - "3000"
+    depends_on:
+      - db
+      - redis
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=mastodon_proxy"
+      - "traefik.http.services.mastodon-web.loadbalancer.server.port=3000"
+      - "traefik.http.routers.mastodon-web.rule=Host(`DOMAIN`)"
+      - "traefik.http.routers.mastodon-web.entrypoints=websecure"
+      - "traefik.http.routers.mastodon-web.tls.certresolver=letsencrypt"
+    volumes:
+      - /hdd/mastodon/public/system:/mastodon/public/system
+    networks:
+      - proxy
+      - mastodon-internal_network
+
+  streaming:
+    image: tootsuite/mastodon:v3.2.1
+    restart: always
+    env_file: .env.production
+    command: node ./streaming
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider --proxy=off localhost:4000/api/v1/streaming/health || exit 1"]
+    expose:
+      - "4000"
+    depends_on:
+      - db
+      - redis
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=mastodon_proxy"
+      - "traefik.http.services.mastodon-streaming.loadbalancer.server.port=4000"
+      - "traefik.http.routers.mastodon-streaming.rule=(Host(`DOMAIN`) && PathPrefix(`/api/v1/streaming`))"
+      - "traefik.http.routers.mastodon-streaming.entrypoints=websecure"
+      - "traefik.http.routers.mastodon-streaming.tls.certresolver=letsencrypt"
+    networks:
+      - proxy
+      - mastodon-internal_network
+
+  sidekiq:
+    image: tootsuite/mastodon:v3.2.1
+    restart: always
+    env_file: .env.production
+    command: bundle exec sidekiq
+    depends_on:
+      - db
+      - redis
+      - traefik
+    volumes:
+      - /hdd/mastodon/public/system:/mastodon/public/system
+    networks:
+      - proxy
+      - mastodon-internal_network
+
+networks:
+  proxy:
+    external: true
+  mastodon-internal_network:
+    internal: true
