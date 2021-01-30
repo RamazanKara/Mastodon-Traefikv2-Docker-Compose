@@ -13,7 +13,7 @@ In the same directory run:
 
 ```touch .env.production```
 
-Alternative, you can copy the .env.production.sample from this repo, fill it up to your likings and afterwards rename it to ```.env.production```
+Alternatively, you can copy the .env.production.sample from this repo, fill it up to your likings and afterwards rename it to ```.env.production```
 
 On linux machines: ```sudo chown 991:991 .env.production```
 
