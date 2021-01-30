@@ -13,6 +13,8 @@ In the same directory run:
 
 ```touch .env.production```
 
+Alternative, you can copy the .env.production.sample from this repo, fill it up to your likings and afterwards rename it to ```.env.production```
+
 On linux machines: ```sudo chown 991:991 .env.production```
 
 ```docker-compose run --rm -v $(pwd)/.env.production:/opt/mastodon/.env.production web bundle exec rake mastodon:setup```
