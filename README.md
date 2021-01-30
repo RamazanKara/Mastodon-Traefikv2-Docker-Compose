@@ -1,6 +1,10 @@
 # mastodon-traefikv2-docker-compose
 Mastodon Instance based on Docker Compose. Requires a Traefik Load Balancer
 
+## Demo
+
+Visit https://www.r-kara.de for a demo of my own Mastodon Instance
+
 ## Install
 
 Download my docker-compose.yml and fill in the variables to your needs
