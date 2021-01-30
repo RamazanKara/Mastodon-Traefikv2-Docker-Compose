@@ -5,7 +5,7 @@ version: "3.5"
 # Line 36: <TRAEFIK_DASHBOARD_ADMIN_PASSWORD> - MD5 hash of your password (use http://www.htaccesstools.com/htpasswd-generator/)
 # Line 54: <POSTGRES_PASSWORD> - the password for the postgres db. Use the same during mastodon:setup!
 # Lines 31, 86, 111: <DOMAIN> - e.g. social.yourdomain.com (Must have an A record pointing to your box' IP) (AAAA for IPv6 ;)
-
+# Volume Mapping: You can change Volumes of every Container but changing the first path e.g. ./mastodon-data/postgres to /opt/anyfolder/postgres
 services:
 
   db:
@@ -42,7 +42,6 @@ services:
     depends_on:
       - db
       - redis
-      - traefik
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=mastodon_proxy"
@@ -68,7 +67,6 @@ services:
     depends_on:
       - db
       - redis
-      - traefik
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=mastodon_proxy"
@@ -88,9 +86,8 @@ services:
     depends_on:
       - db
       - redis
-      - traefik
     volumes:
-      - /hdd/mastodon/public/system:/mastodon/public/system
+      - ./mastodon/public/system:/mastodon/public/system
     networks:
       - proxy
       - mastodon-internal_network
