@@ -1,10 +1,12 @@
 version: "3.5"
 
 # Variables to fill in:
-# Line 55, 78 and 92: External network mapping "Proxy": Change the external network mapping to the Network that your traefik instance is in.
-# Line 54: <POSTGRES_PASSWORD> - the password for the postgres db. Use the same during mastodon:setup!
-# Lines 31, 86, 111: <DOMAIN> - e.g. social.yourdomain.com (Must have an A record pointing to your box' IP) (AAAA for IPv6 ;)
-# (Optional) Volume Mapping: You can change Volumes of every Container but changing the first path e.g. ./mastodon-data/postgres to /opt/anyfolder/postgres
+# External network mapping "Proxy": Change the external network mapping to the Network that your traefik instance is in.
+# <POSTGRES_PASSWORD> - the password for the postgres db. Use the same during mastodon:setup!
+# <DOMAIN> - e.g. social.yourdomain.com (Must have an A record pointing to your box' IP) (AAAA for IPv6 ;)
+# (Optional) Volume Mapping - You can change Volumes of every Container but changing the first path e.g. ./mastodon-data/postgres to /opt/anyfolder/postgres
+#< Traefik Configuration - You may have to change the Traefik Labels according to your configuration. If you have a catch all rule for http for example, 
+# you may remove the redirection rule >
 
 services:
 
@@ -45,10 +47,20 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=mastodon_proxy"
-      - "traefik.http.services.mastodon-web.loadbalancer.server.port=3000"
-      - "traefik.http.routers.mastodon-web.rule=Host(`DOMAIN`)"
-      - "traefik.http.routers.mastodon-web.entrypoints=websecure"
-      - "traefik.http.routers.mastodon-web.tls.certresolver=letsencrypt"
+      - "traefik.http.services.mastodon-web-http.loadbalancer.server.port=3000"
+      - "traefik.http.routers.mastodon-web.rule=Host(`<DOMAIN>`)"
+      - "traefik.http.routers.mastodon-web.entrypoints=https"
+      - "traefik.http.routers.mastodon-web.tls=true"
+      - "traefik.http.routers.mastodon-web.tls.certresolver=http"
+      - "traefik.http.routers.mastodon-web.service=mastodon-web-http"
+      - "traefik.http.routers.mastodon-web-http.rule=Host(`<DOMAIN>`)"
+      - "traefik.http.routers.mastodon-web-http.entrypoints=http"
+      - "traefik.http.routers.mastodon-web-http.middlewares=redirect-https"
+      - "traefik.http.routers.mastodon-web-http.service=mastodon-web-http"
+      - "traefik.http.middlewares.redirect-https.redirectScheme.scheme=https"
+      - "traefik.http.middlewares.redirect-https.redirectScheme.permanent=true"
+
+
     volumes:
       - ./mastodon-data/public/system:/mastodon/public/system
     networks:
@@ -70,10 +82,19 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=mastodon_proxy"
-      - "traefik.http.services.mastodon-streaming.loadbalancer.server.port=4000"
-      - "traefik.http.routers.mastodon-streaming.rule=(Host(`DOMAIN`) && PathPrefix(`/api/v1/streaming`))"
-      - "traefik.http.routers.mastodon-streaming.entrypoints=websecure"
-      - "traefik.http.routers.mastodon-streaming.tls.certresolver=letsencrypt"
+      - "traefik.http.services.mastodon-streaming-http.loadbalancer.server.port=4000"
+      - "traefik.http.routers.mastodon-streaming.rule=(Host(`<DOMAIN>`) && PathPrefix(`/api/v1/streaming`))"
+      - "traefik.http.routers.mastodon-streaming.entrypoints=https"
+      - "traefik.http.routers.mastodon-streaming.tls=true"
+      - "traefik.http.routers.mastodon-streaming.tls.certresolver=http"
+      - "traefik.http.routers.mastodon-streaming.service=mastodon-streaming-http"
+      - "traefik.http.routers.mastodon-streaming-http.rule=(Host(`<DOMAIN>`) && PathPrefix(`/api/v1/streaming`))"
+      - "traefik.http.routers.mastodon-streaming-http.entrypoints=http"
+      - "traefik.http.routers.mastodon-streaming-http.middlewares=redirect-https"
+      - "traefik.http.routers.mastodon-streaming-http.service=mastodon-streaming-http"
+      - "traefik.http.middlewares.redirect-https.redirectScheme.scheme=https"
+      - "traefik.http.middlewares.redirect-https.redirectScheme.permanent=true"
+
     networks:
       - proxy
       - mastodon-internal_network
