@@ -1,11 +1,13 @@
 version: "3.5"
 
 # Variables to fill in:
+# external network mapping: Change the external network mapping to the Network that your traefik instance is in.
 # Line 23: <LETSENCRYPT_MAIL_ADDRESS> - your mail address for contact with Let's Encrypt
 # Line 36: <TRAEFIK_DASHBOARD_ADMIN_PASSWORD> - MD5 hash of your password (use http://www.htaccesstools.com/htpasswd-generator/)
 # Line 54: <POSTGRES_PASSWORD> - the password for the postgres db. Use the same during mastodon:setup!
 # Lines 31, 86, 111: <DOMAIN> - e.g. social.yourdomain.com (Must have an A record pointing to your box' IP) (AAAA for IPv6 ;)
 # Volume Mapping: You can change Volumes of every Container but changing the first path e.g. ./mastodon-data/postgres to /opt/anyfolder/postgres
+
 services:
 
   db:
