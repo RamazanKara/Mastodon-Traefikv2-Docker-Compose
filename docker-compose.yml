@@ -16,7 +16,7 @@ services:
     environment:
       - POSTGRES_PASSWORD=<POSTGRES_PASSWORD>
     volumes:
-      - /hdd/mastodon/postgres:/var/lib/postgresql/data
+      - ./mastodon-data/postgres:/var/lib/postgresql/data
     networks:
       - mastodon-internal_network
 
@@ -26,7 +26,7 @@ services:
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
     volumes:
-      - /hdd/mastodon/redis:/data
+      - ./mastodon-data/redis:/data
     networks:
       - mastodon-internal_network
 
@@ -51,7 +51,7 @@ services:
       - "traefik.http.routers.mastodon-web.entrypoints=websecure"
       - "traefik.http.routers.mastodon-web.tls.certresolver=letsencrypt"
     volumes:
-      - /hdd/mastodon/public/system:/mastodon/public/system
+      - ./mastodon-data/public/system:/mastodon/public/system
     networks:
       - proxy
       - mastodon-internal_network
