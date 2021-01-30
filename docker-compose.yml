@@ -46,7 +46,7 @@ services:
       - redis
     labels:
       - "traefik.enable=true"
-      - "traefik.docker.network=mastodon_proxy"
+      - "traefik.docker.network=proxy"
       - "traefik.http.services.mastodon-web-http.loadbalancer.server.port=3000"
       - "traefik.http.routers.mastodon-web.rule=Host(`<DOMAIN>`)"
       - "traefik.http.routers.mastodon-web.entrypoints=https"
@@ -81,7 +81,7 @@ services:
       - redis
     labels:
       - "traefik.enable=true"
-      - "traefik.docker.network=mastodon_proxy"
+      - "traefik.docker.network=proxy"
       - "traefik.http.services.mastodon-streaming-http.loadbalancer.server.port=4000"
       - "traefik.http.routers.mastodon-streaming.rule=(Host(`<DOMAIN>`) && PathPrefix(`/api/v1/streaming`))"
       - "traefik.http.routers.mastodon-streaming.entrypoints=https"
